@@ -1,0 +1,44 @@
+# Directories to exclude
+.idea
+build
+coverage
+sourceMaps
+node_modules
+documents
+static
+fonts
+terraform/.terraform
+
+# File extensions to exclude
+*.sh
+*.wsdl
+*.xsd
+*.jpg
+*.png
+*.svg
+*.ico
+*.log
+*.mp4
+*.tf
+*.schemas.json
+*.pdffont
+*.p12
+*.gpg
+*.crt
+*.key
+*.pub
+*.csv
+*.xlsx
+*.txt
+*.iml
+*.mp3
+*.proto
+*.mov
+
+# Files to exclude
+package-lock.json
+Dockerfile
+.dockerignore
+.gitignore
+.prettierignore
+.DS_Store

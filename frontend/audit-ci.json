@@ -1,0 +1,8 @@
+{
+    "package-manager": "npm",
+    "low": false,
+    "moderate": true,
+    "high": true,
+    "critical": true,
+    "retry-count": 10
+}

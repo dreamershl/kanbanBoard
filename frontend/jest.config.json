@@ -1,0 +1,25 @@
+{
+    "preset": "ts-jest",
+    "collectCoverage": true,
+    "modulePathIgnorePatterns": ["/build/"],
+    "collectCoverageFrom": ["**/*.ts"],
+    "coveragePathIgnorePatterns": ["/node_modules/", ".{benchmark,stories,test,spec}.{ts,tsx}"],
+    "coverageReporters": ["lcov", "text-summary"],
+    "coverageDirectory": "coverage",
+    "moduleFileExtensions": ["js", "ts", "tsx", "json"],
+    "notify": false,
+    "notifyMode": "failure-success",
+    "testEnvironment": "jsdom",
+    "testMatch": ["**/?(*.)test.{ts,tsx}"],
+    "verbose": false,
+    "setupFiles": [],
+    "transform": {
+        "\\.pem$": "jest-raw-loader",
+        "\\.pub$": "jest-raw-loader"
+    },
+    "globals": {
+        "ts-jest": {
+            "diagnostics": true
+        }
+    }
+}

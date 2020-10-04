@@ -1,0 +1,45 @@
+{
+    "defaultSeverity": "error",
+    "extends": ["tslint:recommended", "tslint-config-prettier"],
+    "jsRules": {},
+    "rules": {
+        "linebreak-style": [true, "LF"],
+        "quotemark": [true, "double", "jsx-double", "avoid-template", "avoid-escape"],
+        "max-line-length": [true, { "limit": 100, "ignore-pattern": "https?://" }],
+        "triple-equals": [true, "allow-undefined-check"],
+        "curly": false,
+        "max-classes-per-file": false,
+        "only-arrow-functions": [false, "allow-declarations", "allow-named-functions"],
+        "trailing-comma": [
+            true,
+            {
+                "singleline": "never",
+                "multiline": {
+                    "arrays": "always",
+                    "functions": "never",
+                    "objects": "always",
+                    "imports": "always"
+                },
+                "esSpecCompliant": true
+            }
+        ],
+        "interface-name": false,
+        "ordered-imports": false,
+        "object-literal-sort-keys": false,
+        "indent": [true, "spaces", 4],
+        "no-null-keyword": true,
+        "no-empty-interface": true,
+        "whitespace": [
+            true,
+            "check-branch",
+            "check-decl",
+            "check-operator",
+            "check-module",
+            "check-separator",
+            "check-type"
+        ]
+    },
+    "linterOptions": {
+        "exclude": ["**/node_modules/**/*", "**/*_pb.d.ts", "**/*_pb.ts", "**/build/**/*"]
+    }
+}
