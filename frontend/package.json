@@ -166,6 +166,6 @@
         "check:ts": "tsc --project ./ --noEmit",
         "check:scripts": "shellcheck **/*.sh",
         "check": "npm run check:scripts && npm run check:ts && npm run check:style -- --fix && (npm run check:vulnerabilities 2>/dev/null || :) ",
-        "build": "build=true endpoint=http://localhost:8080 node --max-old-space-size=4096 scripts/deployXceder"
+        "build": "party=localhost build=true endpoint=http://localhost:8080 node --max-old-space-size=4096 scripts/deployXceder"
     }
 }

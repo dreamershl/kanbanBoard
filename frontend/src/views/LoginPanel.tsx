@@ -1,7 +1,7 @@
 import React, { ChangeEvent, CSSProperties } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import LoadingButton from "../controls/loadingButton";
+import LoadingButton from "../controls/LoadingButton";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import Visibility from "@material-ui/icons/Visibility";
 import TextField from "@material-ui/core/TextField";
