@@ -1,8 +1,17 @@
 import React from "react";
 import { Subscription } from "rxjs";
 import { Button, Grid, TextField, Typography } from "@material-ui/core";
-import { deleteTask, getTask, getTasks, updateTask } from "../model/taskStore";
+import {
+    deleteTask,
+    EVENT,
+    getFocusTask,
+    getTask,
+    getTasks,
+    taskEventStream,
+    updateTask,
+} from "../model/taskStore";
 import { Task } from "../services/channelTask";
+import { filter } from "rxjs/operators";
 
 enum ACTION {
     IDLE,
@@ -18,10 +27,10 @@ interface ControlPanelProps {}
 
 interface ControlPanelState {
     taskName: string;
-    chosenTask: string;
     pendingAction: ACTION;
     error: string;
     errorAction: ACTION;
+    refresh: number;
 }
 
 export default class ControlPanel extends React.PureComponent<
@@ -30,10 +39,10 @@ export default class ControlPanel extends React.PureComponent<
 > {
     state = {
         taskName: "",
-        chosenTask: "",
         pendingAction: ACTION.IDLE,
         errorAction: ACTION.IDLE,
         error: "",
+        refresh: 0,
     };
     eventSub: Subscription[] = [];
 
@@ -45,7 +54,6 @@ export default class ControlPanel extends React.PureComponent<
             else promise = updateTask(task);
 
             promise
-                .then(() => {})
                 .catch((e) => {
                     this.setState({ error: e.toString(), errorAction: action });
                 })
@@ -55,23 +63,36 @@ export default class ControlPanel extends React.PureComponent<
         });
     }
 
+    private getMaxPositionInGroup(group: number) {
+        const taskList = getTasks(group);
+
+        let position;
+
+        if (taskList.length > 0) position = taskList[taskList.length - 1].position + 1;
+        else position = getTasks(group).length;
+
+        return position;
+    }
+
     onCreateTask = () => {
         const { taskName } = this.state;
-        const position = getTasks(0).length;
-        const task = { name: taskName, group: 0, position };
 
-        this.updateTask(ACTION.CREATE, task);
+        if (!getTask(taskName)) {
+            const position = getTasks(0).length;
+            const task = { name: taskName, group: 0, position };
+
+            this.updateTask(ACTION.CREATE, task);
+        } else this.setState({ errorAction: ACTION.CREATE, error: "task name is duplciated" });
     };
 
     onMoveBack = () => {
-        const { chosenTask } = this.state;
-        const task = getTask(chosenTask);
+        const task = getTask(getFocusTask());
 
         if (task) {
             const group = task.group - 1;
             if (group >= 0) {
+                task.position = this.getMaxPositionInGroup(group);
                 task.group = group;
-                task.position = getTasks(group).length;
 
                 this.updateTask(ACTION.MOVE_BACK, task);
             }
@@ -79,34 +100,41 @@ export default class ControlPanel extends React.PureComponent<
     };
 
     onMoveForward = () => {
-        const { chosenTask } = this.state;
-        const task = getTask(chosenTask);
+        const task = getTask(getFocusTask());
 
         if (task) {
             const group = task.group + 1;
             if (group <= MAX_GROUP) {
                 task.group = group;
-                task.position = getTasks(group).length;
+                task.position = this.getMaxPositionInGroup(group);
 
                 this.updateTask(ACTION.MOVE_FORWARD, task);
             }
         }
     };
     onDelete = () => {
-        const { chosenTask } = this.state;
-        this.updateTask(ACTION.DELETE, { group: 0, name: chosenTask, position: 0 });
+        this.updateTask(ACTION.DELETE, { group: 0, name: getFocusTask(), position: 0 });
     };
     onNewTaskNameChange = (event: any) => {
-        this.setState({ taskName: event.target.value });
+        let errorAction = this.state.errorAction;
+
+        if (errorAction === ACTION.CREATE) {
+            errorAction = ACTION.IDLE;
+        }
+
+        this.setState({ errorAction, taskName: event.target.value });
     };
 
-    unsubscribeEvents() {
-        this.eventSub.forEach((e) => e.unsubscribe());
-        this.eventSub.splice(0, this.eventSub.length);
+    componentDidMount() {
+        this.eventSub.push(
+            taskEventStream.pipe(filter((e) => e.type === EVENT.FOCUS)).subscribe(() => {
+                this.setState({ refresh: this.state.refresh + 1 });
+            })
+        );
     }
 
     componentWillUnmount() {
-        this.unsubscribeEvents();
+        this.eventSub.forEach((e) => e.unsubscribe());
     }
 
     render() {
@@ -114,13 +142,15 @@ export default class ControlPanel extends React.PureComponent<
             margin: "8px 4px",
         };
 
-        const { pendingAction, taskName, chosenTask, error, errorAction } = this.state;
+        const { pendingAction, taskName, error, errorAction } = this.state;
+
+        const focusTask = getFocusTask();
 
         const isSubmitting = pendingAction !== ACTION.IDLE;
 
         const isUpdateError = errorAction !== ACTION.CREATE && errorAction !== ACTION.IDLE;
 
-        const isReadyForUpdate = !isSubmitting && !Boolean(chosenTask);
+        const isReadyForUpdate = !isSubmitting && !Boolean(focusTask);
         return (
             <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -159,6 +189,7 @@ export default class ControlPanel extends React.PureComponent<
                             disabled
                             fullWidth
                             variant="outlined"
+                            value={focusTask}
                             error={isUpdateError}
                             helperText={isUpdateError ? error : ""}
                             placeholder="Click on existing task"

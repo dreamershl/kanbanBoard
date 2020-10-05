@@ -6,7 +6,8 @@ public enum ERROR {
     INVALID_SESSION(-2),
     NOT_EXIST(-3),
     INVALID_PARAMS(-4),
-    WRONG_PASSWORD(-5);
+    WRONG_PASSWORD(-5),
+    NOT_SUPPORT(-6);
 
     public final int code;
 

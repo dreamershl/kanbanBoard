@@ -7,11 +7,10 @@ import Visibility from "@material-ui/icons/Visibility";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import CardContent from "@material-ui/core/CardContent";
-import { login } from "../model/accountStore";
+import { login, setSelfAccount } from "../model/accountStore";
 import { loadTasks } from "../model/taskStore";
 import { Card } from "@material-ui/core";
 
-const LOADING_COUNT = 2;
 const submitBtnStyle: CSSProperties = {
     marginTop: "1em",
     marginBottom: "1em",
@@ -22,106 +21,50 @@ interface LoginPanelProps {}
 interface LoginPanelState {
     isSubmitting: boolean;
     errorMsg: string;
-    isUserInput: boolean;
     userID: string;
     password: string;
-    lastLoginPassword: string;
-    keepLoginInfo: boolean;
     showPassword: boolean;
-    loadingStep: number;
-    loginProgress: number;
 }
 
 export default class LoginPanel extends React.PureComponent<LoginPanelProps, LoginPanelState> {
     state: LoginPanelState = {
         errorMsg: "",
         isSubmitting: false,
-        isUserInput: false,
-        keepLoginInfo: false,
-        lastLoginPassword: "",
-        loadingStep: 0,
-        loginProgress: 0,
-        password: "",
+        password: "demo",
         showPassword: false,
-        userID: "",
+        userID: "demo",
     };
 
     onSubmit = () => {
-        this.setState(
-            { isSubmitting: true, errorMsg: "", loginProgress: 0, loadingStep: 0 },
-            () => {
-                const { userID, password } = this.state;
+        this.setState({ isSubmitting: true, errorMsg: "" }, () => {
+            const { userID, password } = this.state;
 
-                if (password !== this.state.lastLoginPassword) {
-                    login(userID, password)
-                        .then(
-                            () => this.loadTasks(),
-                            (result) => {
-                                this.onError("login fail:" + result.toString());
-                            }
-                        )
-                        .finally(() => {
-                            this.setState({
-                                isSubmitting: false,
-                                loginProgress: 0,
-                                loadingStep: 0,
-                            });
-                        });
+            login(userID, password).then(
+                () =>
+                    loadTasks()
+                        .then(() => {
+                            setSelfAccount(userID);
+                        })
+                        .catch((result) => {
+                            this.onError("fail to load tasks: " + result.toString());
+                        }),
+                (result) => {
+                    this.onError("login fail:" + result.toString());
                 }
-            }
-        );
-    };
-
-    private onError = (errorMsg: string) => {
-        this.setState({ errorMsg });
-    };
-
-    private loadTasks() {
-        return loadTasks().then(
-            () => {
-                this.setLoadingProgress();
-            },
-            (result) => {
-                this.onError("fail to load tasks: " + result.toString());
-            }
-        );
-    }
-
-    setLoadingProgress = () => {
-        const loadingStep = this.state.loadingStep + 1;
-
-        this.setState({
-            loadingStep,
-            loginProgress: Math.floor(loadingStep / LOADING_COUNT),
+            );
         });
     };
 
-    onLoginProgress = (countDown: number) => {
-        this.setState({ loginProgress: Math.floor(countDown * 0.6) });
+    private onError = (errorMsg: string) => {
+        this.setState({ errorMsg, isSubmitting: false });
     };
 
     onUserIDChange(val: string) {
-        this.setState({ userID: val, isUserInput: true });
+        this.setState({ userID: val });
     }
-
-    onUserInput() {
-        if (!this.state.isUserInput) this.setState({ isUserInput: true });
-    }
-
-    updateCheck = (event: ChangeEvent<HTMLInputElement>, value: boolean) => {
-        this.setState({ keepLoginInfo: value });
-    };
 
     render() {
-        const {
-            userID,
-            password,
-            isSubmitting,
-            errorMsg,
-            showPassword,
-            lastLoginPassword,
-            loginProgress,
-        } = this.state;
+        const { userID, password, isSubmitting, errorMsg, showPassword } = this.state;
         const canSubmit = Boolean(userID) && Boolean(password);
 
         const rootStyle: CSSProperties = {
@@ -148,10 +91,7 @@ export default class LoginPanel extends React.PureComponent<LoginPanelProps, Log
             ),
         };
 
-        let passwordValue;
-
-        if (showPassword) passwordValue = password === lastLoginPassword ? "" : password;
-        else passwordValue = password;
+        let passwordValue = password;
 
         return (
             <Card style={rootStyle}>
@@ -175,10 +115,6 @@ export default class LoginPanel extends React.PureComponent<LoginPanelProps, Log
                         disabled={isSubmitting}
                         placeholder="Password"
                         value={passwordValue}
-                        onFocus={() => {
-                            if (lastLoginPassword)
-                                this.setState({ password: "", lastLoginPassword: "" });
-                        }}
                         onChange={(event: ChangeEvent<HTMLInputElement>) => {
                             this.setState({ password: event.target.value });
                         }}
@@ -196,7 +132,6 @@ export default class LoginPanel extends React.PureComponent<LoginPanelProps, Log
                         color="primary"
                         label="LOGIN"
                         disabled={isSubmitting || !canSubmit}
-                        progress={isSubmitting ? loginProgress : 0}
                         fullWidth={true}
                         onClick={this.onSubmit}
                     />

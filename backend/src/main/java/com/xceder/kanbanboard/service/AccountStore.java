@@ -21,7 +21,7 @@ public class AccountStore {
     public AccountStore(PasswordEncryptor passwordEncryptor) {
         this.passwordEncryptor = passwordEncryptor;
 
-        cache.put("test", Pair.of("05a671c66aefea124cc08b76ea6d30bb", ""));
+        cache.put("demo", Pair.of("/gHOKn+6yPr67XyYKgTiKQ==", ""));
     }
 
     private Cache<String, Pair<String, String>> buildCache() {
@@ -34,8 +34,9 @@ public class AccountStore {
         sessionAccountMap.remove(session);
     }
 
-    public ERROR login(String account, String password) {
+    public Pair<ERROR, String> login(String account, String password) {
         ERROR error = ERROR.SUCCESS;
+        String session = "";
 
         if (!account.isEmpty() && !password.isEmpty()) {
             String pwd = passwordEncryptor.decrypt(password);
@@ -45,7 +46,7 @@ public class AccountStore {
                 if (!pwd.endsWith(pair.getLeft())) {
                     error = ERROR.WRONG_PASSWORD;
                 } else {
-                    String session = UUID.randomUUID().toString();
+                    session = UUID.randomUUID().toString();
                     sessionAccountMap.remove(pair.getRight());
                     cache.put(account, Pair.of(pwd, session));
                     sessionAccountMap.put(session, account);
@@ -55,7 +56,7 @@ public class AccountStore {
         } else
             error = ERROR.INVALID_PARAMS;
 
-        return error;
+        return Pair.of(error, session);
     }
 
     public String getAccount(String session) {

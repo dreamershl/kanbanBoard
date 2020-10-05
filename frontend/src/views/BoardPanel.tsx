@@ -3,21 +3,16 @@ import { Subscription } from "rxjs";
 import { Grid, Typography } from "@material-ui/core";
 import TaskGroup from "./TaskGroup";
 
-interface BoardPanelProps {}
+interface BoardPanelProps {
+    height: number;
+}
 
 interface BoardPanelState {
-    activeWindow: number;
-    disableSelection: boolean;
-    windowAction: boolean;
     refresh: number;
 }
 
 export default class BoardPanel extends React.PureComponent<BoardPanelProps, BoardPanelState> {
     state = {
-        activeWindow: -1,
-        disableSelection: false,
-        selectedWindowList: [],
-        windowAction: false,
         refresh: 0,
     };
     eventSub: Subscription[] = [];
@@ -38,29 +33,35 @@ export default class BoardPanel extends React.PureComponent<BoardPanelProps, Boa
     }
 
     render() {
+        const { height } = this.props;
+
+        const titleStyle = { margin: "auto", height: 30 };
+
+        const rootStyle = { height: height - titleStyle.height };
+
         return (
-            <Grid container>
-                <Grid item xs={12}>
-                    <Typography variant="h6" align="center">
-                        Kanban board
-                    </Typography>
-                </Grid>
-                <Grid item xs={3} spacing={2}>
-                    <TaskGroup group={0} label={"Backlog"} />
-                </Grid>
+            <React.Fragment>
+                <Typography variant="h6" align="center" style={titleStyle}>
+                    Kanban board
+                </Typography>
 
-                <Grid item xs={3} spacing={2}>
-                    <TaskGroup group={1} label={"To do"} />
-                </Grid>
+                <Grid container style={rootStyle}>
+                    <Grid item xs={3}>
+                        <TaskGroup group={0} label={"Backlog"} />
+                    </Grid>
+                    <Grid item xs={3}>
+                        <TaskGroup group={1} label={"To do"} />
+                    </Grid>
 
-                <Grid item xs={3} spacing={2}>
-                    <TaskGroup group={2} label={"Ongoing"} />
-                </Grid>
+                    <Grid item xs={3}>
+                        <TaskGroup group={2} label={"Ongoing"} />
+                    </Grid>
 
-                <Grid item xs={3} spacing={2}>
-                    <TaskGroup group={3} label={"Done"} />
+                    <Grid item xs={3}>
+                        <TaskGroup group={3} label={"Done"} />
+                    </Grid>
                 </Grid>
-            </Grid>
+            </React.Fragment>
         );
     }
 }

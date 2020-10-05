@@ -1,5 +1,5 @@
 package com.xceder.kanbanboard.dto;
 
-public class RequestTask extends Request {
+public class RequestUpdateTask {
     public Task task;
 }

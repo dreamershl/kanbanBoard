@@ -5,9 +5,10 @@ import "../styles/main.scss";
 import sizeMe from "react-sizeme";
 import ControlPanel from "./ControlPanel";
 import BoardPanel from "./BoardPanel";
-import { isLogin } from "../model/accountStore";
+import { accountEventStream, isLogin } from "../model/accountStore";
 import LoginPanel from "./LoginPanel";
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core";
+import { Subscription } from "rxjs";
 
 interface MainPageProps {
     size: {
@@ -16,7 +17,9 @@ interface MainPageProps {
     };
 }
 
-interface MainPageState {}
+interface MainPageState {
+    refresh: number;
+}
 
 const darkMuiTheme = createMuiTheme(
     {
@@ -30,6 +33,22 @@ const darkMuiTheme = createMuiTheme(
 );
 
 class MainPage extends React.PureComponent<MainPageProps, MainPageState> {
+    eventSub: Subscription[] = [];
+
+    state = { refresh: 0 };
+
+    onSessionChange = () => {
+        this.setState({ refresh: this.state.refresh + 1 });
+    };
+
+    componentDidMount() {
+        this.eventSub.push(accountEventStream.subscribe(this.onSessionChange));
+    }
+
+    componentWillUnmount() {
+        this.eventSub.forEach((e) => e.unsubscribe());
+    }
+
     render() {
         const {
             size: { height, width },
@@ -41,7 +60,16 @@ class MainPage extends React.PureComponent<MainPageProps, MainPageState> {
             zIndex: 1,
         };
 
-        const loginPrompt = isLogin() ? "" : <LoginPanel />;
+        let clientArea;
+
+        if (isLogin()) {
+            clientArea = (
+                <React.Fragment>
+                    <ControlPanel />
+                    <BoardPanel height={height - 30} />
+                </React.Fragment>
+            );
+        } else clientArea = <LoginPanel />;
 
         return (
             <MuiThemeProvider theme={darkMuiTheme}>
@@ -51,9 +79,7 @@ class MainPage extends React.PureComponent<MainPageProps, MainPageState> {
                         e.preventDefault();
                     }}
                 >
-                    {loginPrompt}
-                    <ControlPanel />
-                    <BoardPanel />
+                    {clientArea}
                 </div>
             </MuiThemeProvider>
         );

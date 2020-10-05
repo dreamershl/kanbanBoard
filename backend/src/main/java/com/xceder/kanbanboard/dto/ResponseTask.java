@@ -1,12 +1,12 @@
 package com.xceder.kanbanboard.dto;
 
-import java.util.List;
+import java.util.Collection;
 
 public class ResponseTask extends Response {
-    public final List<Task> taskList;
+    public final Collection<Task> tasks;
 
-    public ResponseTask(ERROR error, List<Task> taskList) {
+    public ResponseTask(ERROR error, Collection<Task> taskList) {
         super(error);
-        this.taskList = taskList;
+        this.tasks = taskList;
     }
 }

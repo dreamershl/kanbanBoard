@@ -1,0 +1,5 @@
+server:
+  port : 8081
+
+filter:
+  excludePaths: /api/login, /api/doc

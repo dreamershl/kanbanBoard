@@ -9,11 +9,23 @@ const PROP_POSITION = "position";
 export enum EVENT {
     CHANGE,
     DELETE,
+    FOCUS,
 }
 
 export interface TaskEvent {
     type: EVENT;
     task: Task | string;
+}
+
+let focusTask: string = "";
+
+export function setFocusTask(task: string) {
+    focusTask = task;
+    taskEventStream.next({ task, type: EVENT.FOCUS });
+}
+
+export function getFocusTask() {
+    return focusTask;
 }
 
 export const taskEventStream = new Subject<TaskEvent>();
@@ -97,6 +109,8 @@ export function deleteTask(taskName: string) {
         if (result) {
             table.remove(result);
         }
+
+        if (taskName === focusTask) setFocusTask("");
 
         taskEventStream.next({ type: EVENT.DELETE, task: taskName });
 
