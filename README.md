@@ -2,6 +2,19 @@
 
 refer to [./document/userRequirements.md](./document/userRequirements.md)
 
+## UI
+1. Login
+
+    <img src="documents/login.png" width="200">
+    
+2. Create task
+
+    <img src="documents/create.png" width="200">
+    
+3. Move task
+
+    <img src="documents/move.png" width="200">
+
 ## How to run system in localhost
 1. install docker 
 2. run [./docker/buildSpringModuleDocker.sh](./docker/buildSpringModuleDocker.sh) to build spring module docker image
