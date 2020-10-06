@@ -5,15 +5,15 @@ refer to [./document/userRequirements.md](./document/userRequirements.md)
 ## UI
 1. Login
 
-    <img src="documents/login.png" width="200">
+    <img src="documents/login.png" width="400">
     
 2. Create task
 
-    <img src="documents/create.png" width="200">
+    <img src="documents/create.png" width="400">
     
 3. Move task
 
-    <img src="documents/move.png" width="200">
+    <img src="documents/move.png" width="400">
 
 ## How to run system in localhost
 1. install docker 
